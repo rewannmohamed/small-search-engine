@@ -1,0 +1,1 @@
+Information retrieval is the process of obtaining resources that are relevant to an information need from a collection of documents. Web search engines are the most common applications of information retrieval, using algorithms like TF-IDF to rank results based on user queries.
