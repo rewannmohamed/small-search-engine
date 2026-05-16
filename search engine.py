@@ -26,10 +26,10 @@ if not os.path.isdir(FOLDER_NAME):
         f"Missing '{FOLDER_NAME}' folder. Please create it and add .txt files."
     )
 
-for filename in os.listdir(FOLDER_NAME):
+for filename in os.listdir(FOLDER_NAME): #to make this path collection/book.txt
     if filename.endswith(".txt"):
         file_path = os.path.join(FOLDER_NAME, filename)
-        with open(file_path, "r", encoding="utf-8") as file:
+        with open(file_path, "r", encoding="utf-8") as file: # with -> close file after usage , "r" -> read mode , encoding for arabic words
             documents.append(file.read())
             file_names.append(filename)
 
@@ -40,8 +40,8 @@ def basic_stemmer(word):
 
     def strip_double_consonant(stem):
         if len(stem) >= 2:
-            last = stem[-1]
-            if last == stem[-2] and last not in "aeiou":
+            last = stem[-1] #take last character
+            if last == stem[-2] and last not in "aeiou":# if aeiou dont remove ex agreeing -> agree
                 return stem[:-1]
         return stem
 
@@ -58,31 +58,35 @@ def basic_stemmer(word):
 
 
 def clean_text(text):
-    text = re.sub(r'[^\w\s]', '', text.lower())
-    words = text.split()
+    text = re.sub(r'[^\w\s]', '', text.lower()) # remove anything like ! ? - . except letters, and covert to lowercase
+    words = text.split() #splite to words - tokenization
     filtered = [w for w in words if w not in STOP_WORDS]
     return [basic_stemmer(w) for w in filtered]
 
 
-cleaned_docs = [clean_text(doc) for doc in documents]
+cleaned_docs = [clean_text(doc) for doc in documents] # pass every doc at documents[] to clean_text(doc)
 
+#cleaned_docs = [ as example
+#     ["cat", "run"],
+#     ["cat", "play"]
+# ]
 
-def compute_tf(doc):
-    tf = {}
+def compute_tf(doc): #(علاقة الكلمة بالملف).
+    tf = {} # dictionary => (key: word , value: tf)
     for word in doc:
-        tf[word] = tf.get(word, 0) + 1
+        tf[word] = tf.get(word, 0) + 1 #if this word not fount at dictionary , make count = 0 then add 1
     for word in tf:
         count = tf[word]
-        tf[word] = 1 + math.log10(count) if count > 0 else 0
+        tf[word] = 1 + math.log10(count) if count > 0 else 0 #calc 1+log(count of word)
     return tf
 
 
-def compute_idf(docs):
+def compute_idf(docs):# بيقيس الكلمة نادرة ولا منتشرة في كل الملفات (علاقة الكلمة بالمشروع كله).
     idf = {}
     total_docs = len(docs)
-    all_words = set([word for doc in docs for word in doc])
+    all_words = set([word for doc in docs for word in doc]) #have unique words in files -> set , enter docs to words
     for word in all_words:
-        containing_docs = sum([1 for doc in docs if word in doc])
+        containing_docs = sum([1 for doc in docs if word in doc]) # to each word if word in docs write 1 then sum ones
         if total_docs > 0 and containing_docs > 0:
             idf[word] = math.log10(total_docs / float(containing_docs))
         else:
@@ -91,30 +95,31 @@ def compute_idf(docs):
 
 
 # Compute IDF once at startup
-idf_scores = compute_idf(cleaned_docs)
+idf_scores = compute_idf(cleaned_docs) #dictionary
 
 # ---------------------------------------------------------
-# [NEW] Building the Inverted Index & Document Magnitudes
+#Building the Inverted Index & Document Magnitudes
 # ---------------------------------------------------------
-# الفهرس المعكوس: { word: { doc_index: tfidf_value } }
+
+#{ word: { doc_index: tfidf_value } }
 inverted_index = {}
-doc_magnitudes = [0.0] * len(documents)
+doc_magnitudes = [0.0] * len(documents) #list that filled by zeros علي قد عدد الملفات اللي عندنا
 
 for doc_idx, doc in enumerate(cleaned_docs):
-    tf = compute_tf(doc)
+    tf = compute_tf(doc) #calc term frequency for each doc in cleaned docs - tf is dictionary => (key: word , value: tf calculated)
     sum_squares = 0.0
 
     for word, tf_val in tf.items():
-        tfidf_val = tf_val * idf_scores.get(word, 0)
+        tfidf_val = tf_val * idf_scores.get(word, 0)#default zero if not found
         if tfidf_val > 0:
-            # إذا لم تكن الكلمة موجودة في الفهرس، ننشئ لها قاموساً جديداً
+
             if word not in inverted_index:
                 inverted_index[word] = {}
-            # نربط رقم الملف بقيمة الـ TF-IDF للكلمة فيه
-            inverted_index[word][doc_idx] = tfidf_val
-            sum_squares += tfidf_val ** 2
 
-    doc_magnitudes[doc_idx] = math.sqrt(sum_squares)
+            inverted_index[word][doc_idx] = tfidf_val #index construction
+            sum_squares += tfidf_val ** 2 #length normalization -1
+
+    doc_magnitudes[doc_idx] = math.sqrt(sum_squares) #length normalization -2
 
 
 # ---------------------------------------------------------
@@ -167,12 +172,12 @@ def search_engine(query):
 
 
 # =========================================================
-# GUI (Google Style)
+# GUI
 # =========================================================
 root = tk.Tk()
-root.title("My Python Search Engine - [Inverted Index + Cosine]")
+root.title("Search Engine")
 root.geometry("600x550")
-root.configure(bg='#202124')
+root.configure(bg='#1B1F1B')
 
 
 def highlight_terms(text_widget, terms, start_index, end_index):
@@ -250,7 +255,7 @@ def on_search_click():
 
 
 # --- UI elements ---
-logo_label = tk.Label(root, text="IR Search Engine", font=("Arial", 28, "bold"), bg='#202124', fg='#8ab4f8')
+logo_label = tk.Label(root, text="Search Engine", font=("Arial", 28, "bold"), bg='#202124', fg='#8ab4f8')
 logo_label.pack(pady=(30, 20))
 
 search_frame = tk.Frame(root, bg='#202124')
