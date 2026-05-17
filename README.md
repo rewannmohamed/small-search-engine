@@ -20,5 +20,5 @@ The engine uses the following models for ranking:
 ## How to Run 🚀
 1. Ensure Python 3.x is installed.
 2. Place your `.txt` files inside a folder named `collection` in the same directory as the script.
-3. Run the script: `python main.py`
+3. Run the script: `python search engine.py`
 4. Enter your query in the search bar and hit "Google Search".
