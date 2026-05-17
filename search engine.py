@@ -121,12 +121,17 @@ for doc_idx, doc in enumerate(cleaned_docs):
 
     doc_magnitudes[doc_idx] = math.sqrt(sum_squares) #length normalization -2
 
+#inverted_index = {
+#     "cat":  { 0: 0.45, 1: 0.21 },
+#     "run":  { 0: 1.15 },
+#     "play": { 1: 0.85 }
+# }
 
 # ---------------------------------------------------------
 # Main search function using Inverted Index & Cosine Similarity
 # ---------------------------------------------------------
 def search_engine(query):
-    cleaned_query = clean_text(query)
+    cleaned_query = clean_text(query) #list of words
     if not cleaned_query:
         return []
 
@@ -151,7 +156,7 @@ def search_engine(query):
         if word in inverted_index:
             # نمر فقط على الملفات التي تحتوي على هذه الكلمة
             for doc_idx, d_tfidf in inverted_index[word].items():
-                dot_products[doc_idx] = dot_products.get(doc_idx, 0.0) + (q_tfidf * d_tfidf)
+                dot_products[doc_idx] = dot_products.get(doc_idx, 0.0) + (q_tfidf * d_tfidf) #if search more than 1 word
 
     # 3. Calculate Cosine Similarity for the candidate documents
     scores = []
@@ -164,10 +169,10 @@ def search_engine(query):
             cosine_score = 0.0
 
         if cosine_score > 0:
-            scores.append((cosine_score, file_names[doc_idx], documents[doc_idx]))
+            scores.append((cosine_score, file_names[doc_idx], documents[doc_idx]))# pass cosine score - original file name and its content
 
     # Sort by highest cosine similarity score
-    scores.sort(reverse=True, key=lambda x: x[0])
+    scores.sort(reverse=True, key=lambda x: x[0]) #sort according score
     return scores
 
 

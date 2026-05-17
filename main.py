@@ -89,6 +89,10 @@ def compute_idf(docs):
 # Compute IDF once at startup
 idf_scores = compute_idf(cleaned_docs)
 
+
+# inverted_index = {
+#     "cat": { 0: 0.45, 1: 0.21 }
+# }
 # 4. Main search function
 def search_engine(query):
     cleaned_query = clean_text(query)
